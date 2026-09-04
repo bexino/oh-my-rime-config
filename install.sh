@@ -130,6 +130,7 @@ main_menu() {
         printf '3. 增加Qt/GTK等应用兼容（非必要）\n'
         printf '4. 安装Gnome扩展\n'
         printf '5. 全部卸载\n'
+        printf '6. 退出脚本\n'
         read -r -p '请选择：' choice || break
 
         case "$choice" in
@@ -157,8 +158,11 @@ main_menu() {
                 "$SCRIPT_DIR/uninstall.sh" || true
                 exit 0
                 ;;
+            6)
+                break
+                ;;
             *)
-                printf '输入无效，请输入 1 到 5。\n'
+                printf '输入无效，请输入 1 到 6。\n'
                 ;;
         esac
     done

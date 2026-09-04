@@ -79,10 +79,23 @@ def run_as_target(account: pwd.struct_passwd, command: list[str]) -> None:
         }
     )
     try:
+        options = {
+            "check": True,
+            "env": environment,
+        }
+        if command and command[0] == "fcitx5":
+            # Fcitx5 is a background process. Do not let its asynchronous
+            # diagnostics overwrite the installer's menu prompt.
+            options.update(
+                {
+                    "stdout": subprocess.DEVNULL,
+                    "stderr": subprocess.DEVNULL,
+                    "start_new_session": True,
+                }
+            )
         subprocess.run(
             ["runuser", "--user", account.pw_name, "--", *command],
-            check=True,
-            env=environment,
+            **options,
         )
     except (OSError, subprocess.CalledProcessError) as error:
         fail(f"以用户 {account.pw_name} 执行命令失败：{error}")

@@ -15,6 +15,7 @@ nano ~/.local/share/fcitx5/rime/rime_mint.schema.yaml
 ```
 
 或使用 gedit：
+
 ```bash
 gedit ~/.local/share/fcitx5/rime/rime_mint.schema.yaml
 ```
@@ -33,7 +34,8 @@ RPM系 (e.g. Fedora, RHEL, etc.)
 
 ## 注意
 
-- GNOME用户建议安装扩展：https://extensions.gnome.org/extension/261/kimpanel/  ，
+- GNOME用户建议安装扩展：https://extensions.gnome.org/extension/261/kimpanel/  ，  
+
 - 因 ibus 是 GNOME 核心组件，故并不建议卸载 ibus，并可能因 GNOME 依赖而被 DNF 拒绝卸载。
 
 ## 鸣谢
