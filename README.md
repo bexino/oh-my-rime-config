@@ -16,7 +16,7 @@ nano ~/.local/share/fcitx5/rime/rime_mint.schema.yaml
 
 或使用 gedit：
 ```bash
-gedit  ~/.local/share/fcitx5/rime/rime_mint.schema.yaml
+gedit ~/.local/share/fcitx5/rime/rime_mint.schema.yaml
 ```
 
 ## 脚本内容
