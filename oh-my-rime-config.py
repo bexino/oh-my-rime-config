@@ -1,123 +1,146 @@
-#!/bin/env python3
-#This Script is under GNU GPL v3 Licence
+#!/usr/bin/env python3
+"""Install Mintimate's Rime configuration for the invoking desktop user."""
+
+from __future__ import annotations
+
 import os
-import sys
+import pwd
+import shutil
 import subprocess
-import time
-
-USER=os.getlogin()    ##获取当前用户名
-Github_source="dgithub.xyz"  ##用于选择直接从Github下载还是从Github镜像源下载
-just_rime_update=False ##用于判断用户是否只是来更新RIME输入法的
-
-##由于Fcitx5不会自己新建文件夹,所以需要本程序帮它新建一下
-os.system(f'mkdir -p /home/{USER}/.local/share/fcitx5/themes')
-os.system(f'mkdir -p /home/{USER}/.local/share/fcitx5/rime')
-
-##对成功和失败的函数调用
-def success():
-    print('-成功!')
-def failed():
-    print('\n-失败,请自行排查问题!')
-    sys.exit(1)
-
-#####以下是主执行代码####
-
-print('###Oh-My-RIME薄荷输入法自动安装工具###')
-print()
-print('-请在下方输入您的管理员用户密码')
-os.system('sudo echo "-提权成功!" && clear')
-
-print('-正在更新系统APT仓库')
-os.system('sudo dnf update')
-
-print('\n-正在安装Fcitx5-RIME后端')
-if os.system('sudo dnf remove ibus -y && sudo dnf install wl-clipboard fcitx5-rime librime-lua librime-tools -y')!=0:
-    failed()
-else:success()
-
-print('\n-正在安装git和用于查看发行版的lsb_release工具')
-if os.system('sudo dnf install git git-lfs lsb_release -y')!=0:
-    failed()
-else:success()
-
-print('\n-正在下载薄荷输入法配置')
-while True:
-    print('-请问您需要通过国内镜像源下载配置(有延迟)还是直接从Github上下载?')
-    print('-输入1从国内源下载配置,输入2直接从Github下载配置')
-    a=int(input('-您的输入:'))
-    if a==1:
-        Github_source="dgithub.xyz"
-        break;
-    elif a==2:
-        Github_source="github.com"
-        break;
-    else:
-        print('-输入错误,请重新输入!')
-        print()
-
-if os.system(f'rm -rf /home/{USER}/rimecache && cd /home/{USER} && mkdir rimecache && cd rimecache && git clone --depth=1 https://gitee.com/LFRon/rime-wanxiang-mirror.git rime-wanxiang')!=0:
-    failed()
-else:success()
-
-# 检测用户之前是不是已经安装了RIME,跑这个脚本只是用来更新的还是替换的
-if (os.path.exists(f'/home/{USER}/.local/share/fcitx5/rime')):
-    # 检测用户安装的RIME是不是万象输入法
-    if (os.path.exists(f'/home/{USER}/.local/share/fcitx5/rime/user.yaml') and os.path.exists(f'/home/{USER}/.local/share/fcitx5/rime/wanxiang.userdb')):   
-        just_rime_update=True
-        print('- 正在备份用户的输入法个人词典:',end="")
-        if (os.system(f'mkdir /home/{USER}/.local/share/fcitx5/cache')!=0):failed()
-        if (os.system(f'cd /home/{USER}/.local/share/fcitx5/rime && cp -rf user.yaml wanxiang.userdb ../cache && cp -rf en.userdb ../cache')!=0):failed()
-        success()
-
-print('\n-正在导入/更新薄荷输入法')
-##先删除原先存在的RIME目录
-if os.system(f'rm -rf /home/{USER}/.local/share/fcitx5/rime && mkdir -p /home/{USER}/.local/share/fcitx5/rime && cd /home/{USER}/rimecache/rime-wanxiang && cp -a -f * /home/{USER}/.local/share/fcitx5/rime')!=0:
-    failed()
-else:success()
-
-if (just_rime_update==True):
-    print('- 我发现您已经配置过输入法,那么我将只进行更新操作')
-    print('- 正在恢复用户词典备份:',end="")
-    if (os.system(f'cd /home/{USER}/.local/share/fcitx5 && cp -rf cache/* rime && rm -rf cache')!=0):failed()
-    success()
-    if (os.system(f'cd /home/{USER}/.local/share/fcitx5 && rm -rf cache')!=0):
-        print('- 奇怪了,你的RIME备份怎么不见了,是不是被你删了?不过这不影响脚本运行~')
-        time.sleep(1)
-
-print('\n-正在下载KDE风格输入法皮肤')
-if os.system(f'cd /home/{USER}/rimecache && git clone https://gitee.com/LFRon/oh-my-rime-fcitx5-skins.git')!=0:
-    failed()
-else:success()
+import sys
+import tempfile
+from pathlib import Path
 
 
-print('\n-正在解压并导入KDE风格的输入法皮肤(附赠一堆Breeze风格的)')
-if os.system(f'cd /home/{USER}/rimecache/oh-my-rime-fcitx5-skins && unzip oh-my-rime-skins.zip && cd oh-my-rime-skins && cp -a -f * /home/{USER}/.local/share/fcitx5/themes')!=0:
-    failed()
-else:success()
+REPOSITORY = "https://github.com/Mintimate/oh-my-rime.git"
+SYSTEM_PACKAGES = [
+    "wl-clipboard",
+    "fcitx5-rime",
+    "librime-lua",
+    "librime-tools",
+]
 
 
-print('\n-正在对/etc/environment进行修改以适应Qt/GTK应用')
-f = open('/etc/environment','r')
-environment=f.read()
-if environment.find('GTK_IM_MODULE')!=-1 or environment.find('QT_IM_MODULE')!=-1:
-    print('检测到您已对输入法环境变量进行修改,已跳过')
-else:
-    print('-正在修改以增加对Qt/GTK等应用的支持')
-    os.system('sudo rm /etc/environment.d/fcitx5.conf')  ###删除我之前配置脚本无用的文件
-    os.system(f'cd /home/{USER}/rimecache && git clone https://gitee.com/LFRon/fcitx5-env-config-tool.git && cd fcitx5-env-config-tool && sudo python3 fcitx5-envconfig.py')
+def fail(message: str) -> None:
+    print(f"\n-失败：{message}", file=sys.stderr)
+    raise SystemExit(1)
 
 
-print('\n-正在清理缓存')
-if os.system(f'cd /home/{USER} && sudo rm -r /home/{USER}/rimecache')!=0:
-    failed()
-else:success()
+def account_from_uid(uid: int) -> pwd.struct_passwd:
+    try:
+        return pwd.getpwuid(uid)
+    except KeyError:
+        fail(f"找不到 UID 为 {uid} 的用户")
 
 
-print('\n-正在重启fcitx5')
-os.system('killall fcitx5')
-p = subprocess.Popen(['fcitx5'],stdin=subprocess.PIPE,stdout=subprocess.PIPE)
-time.sleep(4)
+def target_account() -> pwd.struct_passwd:
+    requested = os.environ.get("TARGET_USER") or os.environ.get("SUDO_USER")
+    if requested and requested != "root":
+        try:
+            return pwd.getpwnam(requested)
+        except KeyError:
+            fail(f"找不到目标用户：{requested}")
 
-os.system('clear')
-print('-薄荷输入法(Fcitx5后端)已经配置完成!')
+    sudo_uid = os.environ.get("SUDO_UID", "")
+    if sudo_uid.isdigit() and int(sudo_uid) != 0:
+        return account_from_uid(int(sudo_uid))
 
+    try:
+        return account_from_uid(os.stat(__file__).st_uid)
+    except OSError as error:
+        fail(f"无法确定脚本所有者：{error}")
+
+
+def run(command: list[str], *, cwd: Path | None = None) -> None:
+    try:
+        subprocess.run(command, cwd=cwd, check=True)
+    except (OSError, subprocess.CalledProcessError) as error:
+        fail(f"命令执行失败：{' '.join(command)}；{error}")
+
+
+def chown_tree(path: Path, uid: int, gid: int) -> None:
+    for child in [path, *path.rglob("*")]:
+        try:
+            os.chown(child, uid, gid, follow_symlinks=False)
+        except OSError as error:
+            fail(f"无法设置文件所有者：{child}；{error}")
+
+
+def run_as_target(account: pwd.struct_passwd, command: list[str]) -> None:
+    runtime_dir = Path("/run/user") / str(account.pw_uid)
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "HOME": account.pw_dir,
+            "USER": account.pw_name,
+            "LOGNAME": account.pw_name,
+            "XDG_RUNTIME_DIR": str(runtime_dir),
+            "DBUS_SESSION_BUS_ADDRESS": f"unix:path={runtime_dir}/bus",
+        }
+    )
+    try:
+        subprocess.run(
+            ["runuser", "--user", account.pw_name, "--", *command],
+            check=True,
+            env=environment,
+        )
+    except (OSError, subprocess.CalledProcessError) as error:
+        fail(f"以用户 {account.pw_name} 执行命令失败：{error}")
+
+
+def main() -> None:
+    if os.geteuid() != 0:
+        fail("请从 install.sh 启动，或使用 sudo -i 运行此脚本")
+
+    account = target_account()
+    target_home = Path(account.pw_dir)
+    rime_dir = target_home / ".local" / "share" / "fcitx5" / "rime"
+    themes_dir = target_home / ".local" / "share" / "fcitx5" / "themes"
+
+    print("### Oh-My-RIME 薄荷拼音自动安装工具 ###")
+    print(f"目标用户：{account.pw_name}")
+
+    print("\n-正在安装 Fcitx5-Rime 后端")
+    run(["dnf", "install", "-y", *SYSTEM_PACKAGES])
+
+    with tempfile.TemporaryDirectory(prefix="oh-my-rime-") as temporary:
+        temporary_dir = Path(temporary)
+        checkout = temporary_dir / "source"
+        print("\n-正在下载薄荷拼音配置及万象词库")
+        run(["git", "clone", "--depth=1", REPOSITORY, str(checkout)])
+
+        backup_dir = temporary_dir / "backup"
+        if rime_dir.exists():
+            backup_dir.mkdir()
+            for item in (rime_dir / "user.yaml", *rime_dir.glob("*.userdb")):
+                if item.is_dir():
+                    shutil.copytree(item, backup_dir / item.name)
+                elif item.is_file():
+                    shutil.copy2(item, backup_dir / item.name)
+
+        print("\n-正在导入薄荷拼音配置")
+        themes_dir.mkdir(parents=True, exist_ok=True)
+        if rime_dir.exists():
+            shutil.rmtree(rime_dir)
+        shutil.copytree(checkout, rime_dir)
+
+        if backup_dir.exists():
+            for item in backup_dir.iterdir():
+                destination = rime_dir / item.name
+                if item.is_dir():
+                    shutil.copytree(item, destination)
+                else:
+                    shutil.copy2(item, destination)
+
+        chown_tree(rime_dir, account.pw_uid, account.pw_gid)
+        chown_tree(themes_dir, account.pw_uid, account.pw_gid)
+
+    print("\n-正在重启目标用户的 Fcitx5")
+    if shutil.which("pkill"):
+        subprocess.run(["pkill", "-u", str(account.pw_uid), "-x", "fcitx5"], check=False)
+    run_as_target(account, ["fcitx5", "-d"])
+    print("\n-薄荷拼音和万象词库配置完成！")
+
+
+if __name__ == "__main__":
+    main()
