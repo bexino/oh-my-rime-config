@@ -8,7 +8,7 @@
   
   已在 Fedora Workstation 44 GNOME + Wayland 测试通过。
   
-- DEB 系 (e.g. Ubuntu, Debian) 无法使用，请知悉！
+- DEB 系 (e.g. Ubuntu, Debian, etc.) 无法使用，请知悉！
 
 ---
 
