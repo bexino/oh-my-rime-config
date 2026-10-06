@@ -2,7 +2,8 @@
 [![Commit Activity](https://img.shields.io/github/commit-activity/t/bexino/oh-my-rime-config?color=green)](https://github.com/bexino/oh-my-rime-config/commits/main/)
 [![License](https://img.shields.io/github/license/bexino/oh-my-rime-config?color=blue)](https://github.com/bexino/oh-my-rime-config/blob/main/LICENSE)
 [![MadeWith♥](https://img.shields.io/badge/@bexino-Made_With_♥-purple)](https://github.com/bexino)
-[![ViewInGithub](https://img.shields.io/badge/View_In-GitHub-white?logo=github&logoColor=auto&labelColor=555555&color=ffffff)](https://github.com/bexino/oh-my-rime-config/)
+[![ViewInGithub](https://img.shields.io/badge/Github-bexino%2Foh--my--rime--config-white?logo=github&logoColor=auto&labelColor=555555&color=ffffff)](https://github.com/bexino/oh-my-rime-config/)
+
 
 # oh-my-rime-config
 
