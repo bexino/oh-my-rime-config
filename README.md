@@ -47,6 +47,13 @@
 
 ---
 
+## FAQ
+
+Q：现代 GNOME+Wayland 候选框漂移到屏幕左上角？  
+A：[安装 Kimpanel GNOME 扩展](https://extensions.gnome.org/extension/261/kimpanel/)。
+
+---
+
 ## 修改配置
 
 ```bash
@@ -119,13 +126,6 @@ menu:
 > ```
 
 安装 [Kimpanel GNOME 扩展](https://extensions.gnome.org/extension/261/kimpanel/) 后：  在属性设置中打开：`Vertical List`。
-
----
-
-## FAQ
-
-Q：现代 GNOME+Wayland 候选框漂移到屏幕左上角？
-A：[安装 Kimpanel GNOME 扩展](https://extensions.gnome.org/extension/261/kimpanel/)。
 
 ---
 
