@@ -5,28 +5,45 @@
 ## 适用于
 
 - **RPM 系 (e.g. Fedora, RHEL, etc.)**  
-  
   已在 Fedora Workstation 44 GNOME + Wayland 测试通过。
-  
-- DEB 系 (e.g. Ubuntu, Debian, etc.) 无法使用，请知悉！
+
+> [!IMPORTANT]  
+> - DEB 系 (e.g. Ubuntu, Debian, etc.) 无法使用，请知悉！
 
 ---
 
 ## 快速入门
 
+直接在终端中运行：
+
 ```bash
 (sudo dnf install -y git git-lfs && tmp_dir="$(mktemp -d)" && git clone https://github.com/bexino/oh-my-rime-config.git "$tmp_dir/oh-my-rime-config" && (cd "$tmp_dir/oh-my-rime-config" && sudo -i -- "$PWD/install.sh"); status=$?; if [[ -n "${tmp_dir:-}" ]]; then sudo rm -rf -- "$tmp_dir"; fi; exit "$status")
 ```
 
-该命令提供用户友好菜单，退出自动清理临时文件。
+> [!TIP]  
+> 该命令提供用户友好菜单，退出自动清理临时文件。
 
 ---
 
-## 脚本内容
+## 特性
 
 1. 安装 Fcitx5 + 薄荷拼音，  
 2. 安装万象词库 + 语言模型，  
 3. 配置 Fcitx5 自启动。  
+
+---
+
+## 对于 GNOME 用户
+
+> [!TIP]  
+> - [建议安装 Kimpanel GNOME 扩展](https://extensions.gnome.org/extension/261/kimpanel/) ：  
+>   它可以解决现代 GNOME+Wayland 候选框漂移到屏幕左上角的问题。
+>   
+> - 因 ibus 是 GNOME 核心组件，故并不建议卸载 ibus，且因 GNOME 依赖而可能被 DNF 拒绝卸载。
+> 
+> ### 剪切板
+> 
+> - [安装 Clipboard Indicator GNOME 扩展](https://extensions.gnome.org/extension/779/clipboard-indicator/)。
 
 ---
 
@@ -44,7 +61,7 @@ gedit ~/.local/share/fcitx5/rime/rime_mint.schema.yaml
 
 ### 候选词数量
 
-打开配置文件：
+修改配置文件：
 
 ```yaml
 menu:
@@ -78,23 +95,25 @@ menu:
     - derive/([iu])ang$/$1an/ # iang => ian, uang => uan
 ```
 
-> **注意**：原repo中的最后两行（以下为错误示例）：
-> 
+> [!CAUTION]
+>
+> 原repo中的最后两行（以下为错误示例）：
+>
 > ```yaml
 > # - derive/([iu])an$/$lan/
 > # - derive/([iu])ang$/$lan/
 > ```
-> 
+>
 > `$1ang / $1an` 被写成了 `$lan`，也就是数字 `1` 和字母 `l`  
-> 
+>
 > 若需 iu 模糊音，建议修正（以上完整示例已修正）。
 
 ### 竖排候选词
 
 - [安装 Kimpanel GNOME 扩展](https://extensions.gnome.org/extension/261/kimpanel/) 。
 
-> 若未安装 GNOME 扩展管理器:
-> 
+> 若未安装 GNOME 扩展管理器：
+>
 > ```bash
 > flatpak install flathub com.mattjakeman.ExtensionManager
 > ```
@@ -103,24 +122,10 @@ menu:
 
 ---
 
-## 已知问题
+## FAQ
 
-- 使用现代 GNOME + Wayland 可能导致候选框漂移到屏幕左上角。
-  - 解决方案：[安装 Kimpanel GNOME 扩展](https://extensions.gnome.org/extension/261/kimpanel/)。
-
----
-
-## 注意
-
-- [建议 GNOME 用户安装 Kimpanel GNOME 扩展](https://extensions.gnome.org/extension/261/kimpanel/)  ，  
-
-- 因 ibus 是 GNOME 核心组件，故并不建议卸载 ibus，并可能因 GNOME 依赖而被 DNF 拒绝卸载。
-
----
-
-## 剪切板
-
-[安装 Clipboard Indicator GNOME 扩展](https://extensions.gnome.org/extension/779/clipboard-indicator/)。
+Q：现代 GNOME+Wayland 候选框漂移到屏幕左上角？
+A：[安装 Kimpanel GNOME 扩展](https://extensions.gnome.org/extension/261/kimpanel/)。
 
 ---
 
@@ -130,3 +135,7 @@ https://bbs.deepin.org.cn/post/284609
 https://gitee.com/LFRon/oh-my-rime-config-fedora  
 https://gitee.com/LFRon/fcitx5-env-config-tool  
 https://github.com/amzxyz/rime-wanxiang  
+
+## 许可证
+
+AGPL-3.0 license
